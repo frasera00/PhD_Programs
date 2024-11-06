@@ -19,24 +19,22 @@ Required packages:
 ## Contents
 
     1. Grafting.py: Core module for building and analyzing grafting systems.
-    Notebook_create_system_pore.ipynb: Example notebook demonstrating system setup and grafting workflows.
     2. Notebook: Notebook_create_system_pore.ipynb
+    3. Notebook: Notebook_create_system_PDMS.ipynb
+    4. Notebook: Analysis_PDMS1.ipynb
+    5. Notebook: Analysis_PDMS2.ipynb
+    6. Notebook: Marching_cubes.ipynb
 
-The notebook provides a guided example of using Grafting.py to create a molecular system. Key steps include:
-- Setting up a working directory and visualization parameters.
-- Constructing geometries:
-  - Building a block/slab structure.
-  - Creating a cylindrical pore in a block matrix.
-- Configuring system parameters in an input file (input_grafter.json) for reproducibility.
-- Executing grafting and visualization of the final configuration.
+Notebook_create_system_pore.ipynb and Notebook_create_system_PDMS.ipynb demonstrate system setup and grafting workflows using the Grafter code.
+The other notebooks contain the analysis of molecular dynamics trajectories of a PDMS-grafted surface, for scientific publication.
 
-## Running the Notebook
+## Running the Grafter
 
 - Open Notebook_create_system_pore.ipynb in Jupyter.
 - Execute each cell sequentially to:
   - Build structures.
-    - Visualize geometries.
-    - Save and visualize the final configuration.
+  - Visualize geometries.
+  - Save and visualize the final configuration.
 
 ## Example Workflow
 
