@@ -23,7 +23,8 @@ Required packages:
     3. Notebook: Notebook_create_system_PDMS.ipynb
     4. Notebook: Analysis_PDMS1.ipynb
     5. Notebook: Analysis_PDMS2.ipynb
-    6. Notebook: Marching_cubes.ipynb
+    6. Notebook: Analysis_PDMS3.ipynb
+    7. Notebook: Marching_cubes.ipynb
 
 Notebook_create_system_pore.ipynb and Notebook_create_system_PDMS.ipynb demonstrate system setup and grafting workflows using the Grafter code.
 The other notebooks contain the analysis of molecular dynamics trajectories of a PDMS-grafted surface, for scientific publication.
