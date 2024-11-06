@@ -1,0 +1,36 @@
+{
+    "folder": "/Users/frasera/Ricerca/scripts/MONO",
+    "blocks": [
+        "piston1.gro",
+        "initial_config.gro",
+        "piston2.gro"
+    ],
+    "positions": [
+        [
+            0,
+            0,
+            100
+        ],
+        [
+            0,
+            0,
+            322
+        ],
+        [
+            0,
+            0,
+            744
+        ]
+    ],
+    "box dimensions": [
+        200.47,
+        197.98,
+        844,
+        90,
+        90,
+        90
+    ],
+    "transforms": false,
+    "name": "MONO",
+    "out name": "assembled.gro"
+}
