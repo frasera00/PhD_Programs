@@ -3,9 +3,12 @@ This repository contains programs developed during my PhD for setting up and ana
 
 ## Overview
 
-The Grafting.py script defines a NewSystem class, which is designed to construct and analyze molecular systems with grafted structures. It provides an interface to build surfaces, apply grafting techniques, and calculate properties such as mean square displacement, layer height, and density profiles.
+The Grafter program is designed to construct and analyze molecular systems with grafted structures. It provides an interface to build surfaces, apply grafting techniques, and calculate properties such as mean square displacement, layer height, and density profiles.
 
-The notebook demonstrates example workflows using Grafting.py for constructing different system geometries, creating input files, and building and visualizing the system.
+The notebooks "Notebook_creat_system_PDMS" and "Notebook_creat_system_pore" demonstrate example workflows using the Grafter program for constructing different system geometries, creating input files, and building and visualizing the system.
+
+The "Analysis" notebooks contain the analysis of a polydisperse PDMS-grafted surface, using the Grafter analysis modules. 
+
 Required packages:
 - numpy
 - pandas
@@ -14,37 +17,33 @@ Required packages:
 - MDAnalysis
 - tqdm
 - natsort
-- Grafter (a custom library for molecular system setup and analysis)
 
 ## Contents
 
     1. Grafting.py: Core module for building and analyzing grafting systems.
     2. Notebook: Notebook_create_system_pore.ipynb
     3. Notebook: Notebook_create_system_PDMS.ipynb
-    4. Notebook: Analysis_PDMS1.ipynb
-    5. Notebook: Analysis_PDMS2.ipynb
-    6. Notebook: Analysis_PDMS3.ipynb
-    7. Notebook: Marching_cubes.ipynb
+    4. Notebook: Analysis_CAH.ipynb
+    5. Notebook: Analysis_marching_cubes.ipynb
+    6. Notebook: Analysis_orientation.ipynb
+    7. Notebook: Analysis_marching_cubes.ipynb
 
-Notebook_create_system_pore.ipynb and Notebook_create_system_PDMS.ipynb demonstrate system setup and grafting workflows using the Grafter code.
-The other notebooks contain the analysis of molecular dynamics trajectories of a PDMS-grafted surface, for scientific publication.
+## Running the Grafter for creating systems
 
-## Running the Grafter
+  - Define System Parameters: Modify parameters such as grafting density, molecule types and system geometry to load or create a matrix. The input_grafter.json files are used as input. The notebook shows an example of how to set the parameters.
+  - Load parameters using read_inputs_grafter()
+  - Run Grafting Procedures: Use graft_matrix() to apply grafting based on the defined parameters.
+  - Assemble a system by connecting different .gro files. Using input_assembler.json as input to read_inputs_assembler(), the methods from Assembler class can be called to build a system. The function run_assembler() runs the assembly.
+  - Visualize: Plot structure to check system with plot_system().
 
-- Open Notebook_create_system_pore.ipynb in Jupyter.
-- Execute each cell sequentially to:
-  - Build structures.
-  - Visualize geometries.
-  - Save and visualize the final configuration.
+## Running the Grafter modules for analyzing
 
-## Example Workflow
+  - Load a simulated system to the NewSystem(gro=<gro_file>, traj=<traj_file>) class. The trajectory file is not mandatory, a single frame can be loaded
+  - Call functions for analysis. The following modules are available:
+    - Plotting : to visualize
+    - RunningCA: to run Contact Angle analysis
+    - RunningDEN: to run density analysis
+    - RuningLH: to run layer height analysis
+    - Running MSD: to run MSD analysis
+    - RunningSURF: to run surface analysis (using marching cubes)
 
-    Define System Parameters: Modify parameters such as surface distance, grafting density, and molecule types.
-    Run Grafting Procedures: Use NewSystem.graft_matrix() to apply grafting based on the defined parameters.
-    Visualize and Analyze: Plot results for validation and analysis.
-
-## Output
-
-- .gro files representing molecular structures.
-- JSON files storing input parameters for reproducibility.
-- Visualization of system components to validate configuration.
