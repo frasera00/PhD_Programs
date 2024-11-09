@@ -20,13 +20,13 @@ Required packages:
 
 ## Contents
 
-    1. Grafting.py: Core module for building and analyzing grafting systems.
-    2. Notebook: Notebook_create_system_pore.ipynb
-    3. Notebook: Notebook_create_system_PDMS.ipynb
-    4. Notebook: Analysis_CAH.ipynb
-    5. Notebook: Analysis_marching_cubes.ipynb
-    6. Notebook: Analysis_orientation.ipynb
-    7. Notebook: Analysis_marching_cubes.ipynb
+1. Grafting.py: Core module for building and analyzing grafting systems
+2. Notebook: Notebook_create_system_pore.ipynb
+3. Notebook: Notebook_create_system_PDMS.ipynb
+4. Notebook: Analysis_CAH.ipynb
+5. Notebook: Analysis_marching_cubes.ipynb
+6. Notebook: Analysis_orientation.ipynb
+7. Notebook: Analysis_marching_cubes.ipynb
 
 ## Running the Grafter for creating systems
 
@@ -39,7 +39,9 @@ Required packages:
 ## Running the Grafter modules for analyzing
 
   - Load a simulated system to the NewSystem(gro=<gro_file>, traj=<traj_file>) class. The trajectory file is not mandatory, a single frame can be loaded
-  - Call functions for analysis. The following modules are available:
+  - Call functions for analysis.
+  
+The following modules are available:
 
 1. Plotting : to visualize
 2. RunningCA: to run Contact Angle analysis
