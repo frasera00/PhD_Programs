@@ -40,6 +40,7 @@ Required packages:
 
   - Load a simulated system to the NewSystem(gro=<gro_file>, traj=<traj_file>) class. The trajectory file is not mandatory, a single frame can be loaded
   - Call functions for analysis. The following modules are available:
+    
     Plotting : to visualize
     RunningCA: to run Contact Angle analysis
     RunningDEN: to run density analysis
