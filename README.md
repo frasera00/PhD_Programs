@@ -41,10 +41,10 @@ Required packages:
   - Load a simulated system to the NewSystem(gro=<gro_file>, traj=<traj_file>) class. The trajectory file is not mandatory, a single frame can be loaded
   - Call functions for analysis. The following modules are available:
 
-    1. Plotting : to visualize
-    2. RunningCA: to run Contact Angle analysis
-    3. RunningDEN: to run density analysis
-    4. RuningLH: to run layer height analysis
-    5. Running MSD: to run MSD analysis
-    6. RunningSURF: to run surface analysis (using marching cubes)
+1. Plotting : to visualize
+2. RunningCA: to run Contact Angle analysis
+3. RunningDEN: to run density analysis
+4. RuningLH: to run layer height analysis
+5. Running MSD: to run MSD analysis
+6. RunningSURF: to run surface analysis (using marching cubes)
 
