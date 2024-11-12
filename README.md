@@ -1,9 +1,11 @@
 # PhD_Programs
 This repository contains programs developed during my PhD for setting up and analyzing molecular systems for grafting.
 
-## Overview
+## GrafTo
 
-The Grafter program is designed to construct and analyze molecular systems with grafted structures. It provides an interface to build surfaces, apply grafting techniques, and calculate properties such as mean square displacement, layer height, and density profiles.
+![plot](logo.png)
+
+The GrafTo program is designed to construct and analyze molecular systems with grafted structures. It provides an interface to build surfaces, apply grafting techniques, and calculate properties such as mean square displacement, layer height, and density profiles.
 
 The notebooks "Notebook_creat_system_PDMS" and "Notebook_creat_system_pore" demonstrate example workflows using the Grafter program for constructing different system geometries, creating input files, and building and visualizing the system.
 
