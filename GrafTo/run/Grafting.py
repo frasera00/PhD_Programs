@@ -242,7 +242,8 @@ class NewSystem(assembler.Assembler, builder.Builder, writer_and_reader.WriterAn
         if self.dispersity[0] == "poly" and self.dispersity[1]:
             args = self.dispersity[1]
             print("\nUsing Schultz-zimm distribution", "with args", args)
-            chainSize = None
+            self.chainSize = None
+            self.fractions = None
             self.distParams = args
 
         elif self.dispersity[0] == "mono" and self.dispersity[1]:
