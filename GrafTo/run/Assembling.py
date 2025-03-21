@@ -3,8 +3,8 @@
     
 import numpy as np
 import MDAnalysis as mda
-from Grafter.utils import WandR as wr
-from Grafter.utils import Building as bld
+from GrafTo.utils import WandR as wr
+from GrafTo.utils import Building as bld
 
 class Assembler(bld.Builder, wr.WriterAndReader):
 

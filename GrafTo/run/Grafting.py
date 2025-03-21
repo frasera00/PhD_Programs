@@ -4,15 +4,15 @@ import pandas as pd
 import sys
 import matplotlib.pyplot as plt
 from scipy.optimize import leastsq
-from Grafter.run import Assembling as ass
-from Grafter.utils import WandR as wr
-from Grafter.utils import Building as bld
-from Grafter.analysis import Plotting as pltt
-from Grafter.analysis import RunningMSD as rmsd
-from Grafter.analysis import RunningLH as lh
-from Grafter.analysis import RunningDEN as rden
-from Grafter.analysis import RunningCA as ca
-from Grafter.analysis import RunningSURF as surf
+from GrafTo.run import Assembling as assembler
+from GrafTo.utils import WandR as writer_and_reader
+from GrafTo.utils import Building as builder
+from GrafTo.analysis import Plotting as plotter
+from GrafTo.analysis import RunningMSD as msd
+from GrafTo.analysis import RunningLH as layer_height
+from GrafTo.analysis import RunningDEN as density
+#from GrafTo.analysis import RunningCA as contact_angle
+from GrafTo.analysis import RunningSURF as surface
 from collections import Counter
 import MDAnalysis as mda
 import subprocess       
@@ -24,7 +24,7 @@ from natsort import natsorted
 #defining a class called NewSystem
 #inherits methods of all auxiliary classes
 
-class NewSystem(ass.Assembler, bld.Builder, wr.WriterAndReader, pltt.Plotter, rmsd.MSD, lh.LayerHeight, rden.DensityProfile, ca.ContactAngle, surf.Surface):
+class NewSystem(assembler.Assembler, builder.Builder, writer_and_reader.WriterAndReader, plotter.Plotter, msd.MSD, layer_height.LayerHeight, density.DensityProfile, surface.Surface):
     """
     A class representing a new system for grafting.
 
@@ -119,10 +119,10 @@ class NewSystem(ass.Assembler, bld.Builder, wr.WriterAndReader, pltt.Plotter, rm
             if key not in self.dictNames:
                 self.dictNames[key] = in_dict_names[key]
 
-    def get_mol_sizes(self, molname, outfile=None):
+    def get_mol_sizes(self, selection, outfile=None):
         import re
         u = self.universe
-        sel = u.select_atoms(f"name {molname} or resname {molname}")
+        sel = u.select_atoms(selection)
         resnames = sel.residues.resnames
         molSizes = natsorted(list(set([int(re.findall(r'\d+', resname)[0]) for resname in resnames])))
 
@@ -247,12 +247,25 @@ class NewSystem(ass.Assembler, bld.Builder, wr.WriterAndReader, pltt.Plotter, rm
 
         elif self.dispersity[0] == "mono" and self.dispersity[1]:
             chainSize = self.dispersity[1]
-            print("\nUsing chain size", chainSize)
-            args = None
-            self.chainSize = chainSize
 
-        else:
-            raise Exception("No chain size or distribution given, please provide one")
+            if len(chainSize) == 1:
+                print("\nUsing chain size", chainSize)
+                args = None
+                self.chainSize = chainSize
+                self.fractions = None
+            elif len(chainSize) > 1:
+                print("\nUsing more than 1 chain size:")
+                chainSizes, fractions = [], []
+                for data in chainSize:
+                    cs, fraction = data
+                    args = None
+                    chainSizes.append(cs)
+                    fractions.append(fraction)
+                    print(f"\nUsing chain size {cs} with fraction {fraction}")
+                self.chainSize = chainSizes
+                self.fractions = fractions
+            else:        
+                raise Exception("No chain size or distribution given, please provide one")
 
         holes = False
         if self.surfGeometry == "flat":
@@ -264,10 +277,7 @@ class NewSystem(ass.Assembler, bld.Builder, wr.WriterAndReader, pltt.Plotter, rm
             holes = True
 
         # attaches silanes to the surface layer
-        self.dfs["polymer"], self.dfs["under_polymer"], self.nSils, self.molSizes = add_silanes(self.grafDens, self.surfDist, self.dfs["layer"], 
-                                                                                                self.surfGeometry, surfNorm, tiltMol=tiltMol,
-                                                                                                fromDistribution=args, chain_size=chainSize,
-                                                                                                holes=holes)
+        self.dfs["polymer"], self.dfs["under_polymer"], self.nSils, self.molSizes = graft_surface(self.grafDens, self.surfDist, self.dfs["layer"], self.surfGeometry, surfNorm, tiltMol=tiltMol, fromDistribution=args, chain_size=self.chainSize,fractions=self.fractions,holes=holes)
         self.dfs["bulk"] = self.dfs["bulk"].drop(labels=self.dfs["layer"].index, axis=0, inplace=False)
         self.dfs["layer"] = self.dfs["layer"].drop(labels=self.dfs["under_polymer"].index, axis=0, inplace=False)
 
@@ -531,7 +541,7 @@ def cylinderFitting(x,y,z,p,axis,plot="no"): # function to fit a cylindrical equ
 
     return est_p, compute_cylinder_area(est_p[2]*.1,(np.max(z)-np.min(z))*.1)
 
-def add_silanes(grafDens,surfDist,df_cut,surfGeo,sil_norm,tiltMol=0,fromDistribution=None,chain_size=None,holes=None):  
+def graft_surface(grafDens,surfDist,df_cut,surfGeo,sil_norm,tiltMol=0,fromDistribution=None,chain_size=None,fractions=None,holes=None):  
     """
     Function to add silanes to a surface.
     Input parameters
@@ -546,6 +556,20 @@ def add_silanes(grafDens,surfDist,df_cut,surfGeo,sil_norm,tiltMol=0,fromDistribu
         - fromDistribution : give a function from which to sample the number of beads in the molecule
     """   
 
+    def graft_molecule(df_calc,last_pos,molSize,surfDist,sil_norm,tiltMol,holes):
+        xS, yS, zS = [], [], []
+        for j in (range(molSize,0,-1)):
+
+            if holes:
+                xp, yp, zp = df_calc["x"] + surfDist * df_calc["normx"] * j, df_calc["y"] + surfDist * df_calc["normy"] * j, df_calc["z"]
+            else:
+                xp, yp, zp = df_calc[axis[0]] + last_pos[0] * random.uniform(0,tiltMol), df_calc[axis[1]] + last_pos[1] * random.uniform(0,tiltMol), df_calc[sil_norm] + j * surfDist + last_pos[2] * random.uniform(0,tiltMol)
+
+            last_pos = xp, yp, zp
+            xS.append(xp); yS.append(yp); zS.append(zp)
+        
+        return last_pos, xS, yS, zS
+            
     if surfGeo == "flat":
         # calculates area of grafting, maximum grafting density, and number of silanes to graft from given density
         coords = ["x","y","z"]
@@ -556,7 +580,6 @@ def add_silanes(grafDens,surfDist,df_cut,surfGeo,sil_norm,tiltMol=0,fromDistribu
         areaXY = sideX*sideY
         maxGrafDens, numOfMols = float(len(df_cut)/areaXY), round(grafDens*areaXY)
         
-
     elif surfGeo == "cylindrical" or "slit":
         # calculates area of grafting, maximum grafting density and number of silanes to graft from given density
         p = np.array([np.mean(df_cut["x"]),np.mean(df_cut["y"]),0,0,10])
@@ -575,41 +598,60 @@ def add_silanes(grafDens,surfDist,df_cut,surfGeo,sil_norm,tiltMol=0,fromDistribu
     idx = np.random.choice(df_cut.index, numOfMols, replace=False)
 
     # place molecules above selected surface beads by a distance equal to surfDist. Molecule beads are also separated by surfDist
-    xS,yS,zS = [],[],[]
+    xS, yS, zS = [], [], []
     ii = 0
     molSizes = []
-    
     last_pos = [0,0,0]
-    for k in idx:
-        molSize = 0
-        df_calc = df_cut.loc[k]
 
-        if fromDistribution:
-            a = 1/(fromDistribution[0]-1)
-            b = a
-            while molSize == 0:
-                molSize = int(gamma.rvs(a, scale=fromDistribution[1]/b, size=1)[0])
-        elif chain_size:
-            molSize = chain_size
-        else:
-            "No distribution or chain size given!"
-            return
+    if fromDistribution or (chain_size and len(chain_size) == 1):
+        for k in idx:
+            molSize = 0
+            df_calc = df_cut.loc[k]
 
-        molSizes.append(molSize)
-        for j in (range(molSize,0,-1)):
+            if fromDistribution:
+                a = 1/(fromDistribution[0]-1)
+                b = a
+                while molSize == 0:
+                    molSize = int(gamma.rvs(a, scale=fromDistribution[1]/b, size=1)[0])
+                
+                last_pos, xS_new, yS_new, zS_new = graft_molecule(df_calc,last_pos,molSize,surfDist,sil_norm,tiltMol,holes)
+                xS.extend(xS_new); yS.extend(yS_new); zS.extend(zS_new)
+                xp, yp, zp = last_pos
+                molSizes.append(molSize)
 
-            if holes:
-                xp, yp, zp = df_calc["x"] + surfDist * df_calc["normx"] * j, df_calc["y"] + surfDist * df_calc["normy"] * j, df_calc["z"]
-            else:
-                xp, yp, zp = df_calc[axis[0]] + last_pos[0] * random.uniform(0,tiltMol), df_calc[axis[1]] + last_pos[1] * random.uniform(0,tiltMol), df_calc[sil_norm] + j * surfDist + last_pos[2] * random.uniform(0,tiltMol)
+            elif chain_size and len(chain_size) == 1:
+                molSize = chain_size
+                last_pos, xS_new, yS_new, zS_new = graft_molecule(df_calc,last_pos,molSize,surfDist,sil_norm,tiltMol,holes)
+                xS.extend(xS_new); yS.extend(yS_new); zS.extend(zS_new)
+                xp, yp, zp = last_pos
+                molSizes.append(molSize)
 
-            last_pos = xp, yp, zp
+            ii = ii+1
+            sys.stdout.write("Adding molecules: %.2f%%   \r" % (float(ii)/float(numOfMols)*100) )
+            sys.stdout.flush() 
 
-            xS.append(xp); yS.append(yp); zS.append(zp)
+    elif chain_size and len(chain_size) > 1:
+        split_sizes = [int(f * len(idx)) for f in fractions]
+        split_sizes[-1] = len(idx) - sum(split_sizes[:-1])
+        idx_splits = np.split(idx, np.cumsum(split_sizes)[:-1])
 
-        ii = ii+1
-        sys.stdout.write("Adding molecules: %.2f%%   \r" % (float(ii)/float(numOfMols)*100) )
-        sys.stdout.flush()   
+        for cs, idx_subset in zip(chain_size, idx_splits):
+            molSize = cs
+
+            for k in idx_subset:
+                df_calc = df_cut.loc[k]
+
+                last_pos, xS_new, yS_new, zS_new = graft_molecule(df_calc,last_pos,molSize,surfDist,sil_norm,tiltMol,holes)
+                xS.extend(xS_new); yS.extend(yS_new); zS.extend(zS_new)
+                xp, yp, zp = last_pos
+                molSizes.append(molSize)
+ 
+            ii = ii+1
+            sys.stdout.write("Adding molecules: %.2f%%   \r" % (float(ii)/float(numOfMols)*100) )
+            sys.stdout.flush() 
+    else:
+        "No distribution or chain size given!"
+        return  
 
     print("\nNumber of molecules: %d  -  Number of spots: %d  -  Max. grafting dens.: %.3f\n" % (numOfMols,len(df_cut),maxGrafDens))
 
@@ -620,7 +662,6 @@ def add_silanes(grafDens,surfDist,df_cut,surfGeo,sil_norm,tiltMol=0,fromDistribu
         df_Sil = pd.DataFrame({axis[0]:xS, axis[1]:yS, sil_norm:zS})
 
     df_lay1 = df_cut.loc[idx]
-
     return df_Sil, df_lay1, numOfMols, molSizes
 
 def find_pore(maxDist,cyl,geometry): # function to find the coordinates of a cylindrical pore

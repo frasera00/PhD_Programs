@@ -1,0 +1,58 @@
+{
+    "folder": "/Users/frasera/Ricerca/PhD_Programs/POLY",
+    "surface_distance": 0.5,
+    "grafting_density": 0.3,
+    "perturbation": 0,
+    "name": "POLY",
+    "matrix": {
+        "file": false,
+        "size": [
+            50,
+            10,
+            9
+        ]
+    },
+    "grafting method": {
+        "to": false,
+        "from": true
+    },
+    "chain dispersity": {
+        "monodisperse": [
+            [
+                100,
+                0.2
+            ],
+            [
+                30,
+                0.3
+            ],
+            [
+                20,
+                0.5
+            ]
+        ],
+        "polydisperse": false
+    },
+    "atom names": {
+        "polymer": [
+            "PDMS",
+            "DMS"
+        ],
+        "bulk": [
+            "BULK",
+            "N1B"
+        ],
+        "layer": [
+            "LAY",
+            "N1L"
+        ],
+        "under_polymer": [
+            "PDMS",
+            "N1L1"
+        ]
+    },
+    "surface geometry": {
+        "cylindrical": false,
+        "flat": true
+    }
+}
