@@ -3,10 +3,10 @@
     
 import numpy as np
 import MDAnalysis as mda
-from GrafTo.utils import WandR as wr
-from GrafTo.utils import Building as bld
+from GrafTo.utils.Writer_and_reader import WriterAndReader as WnR
+from GrafTo.utils.Building import Builder as Bld
 
-class Assembler(bld.Builder, wr.WriterAndReader):
+class Assembler(Bld, WnR):
 
     """
     The Assembler class is responsible for assembling molecular structures and performing various operations on them.
@@ -24,10 +24,10 @@ class Assembler(bld.Builder, wr.WriterAndReader):
     - build_slab: Builds a slab structure using the given parameters.
     """
 
-    def __init__(self, folder):
+    def __init__(self, root_dir: str) -> None:
         self.universe = None
         self.solvents = {}
-        self.folder = folder
+        self.root_dir = root_dir
 
     def write_gro(self, u, outName):
         """
@@ -108,7 +108,7 @@ class Assembler(bld.Builder, wr.WriterAndReader):
 
         print("Finished assembling (:\n.*.*.*.*.*.*.*.*.*.*.*.\n\n")
 
-    def universe_from_df(self, df, box=None, convert_unit=1):
+    def create_universe_from_df(self, df, box=None, convert_unit=1):
         """
         Creates a universe object from a dataframe.
 
